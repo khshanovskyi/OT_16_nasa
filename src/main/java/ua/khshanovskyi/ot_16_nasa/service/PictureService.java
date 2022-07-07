@@ -2,7 +2,6 @@ package ua.khshanovskyi.ot_16_nasa.service;
 
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
@@ -13,32 +12,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ua.khshanovskyi.ot_16_nasa.entity.Photo;
 import ua.khshanovskyi.ot_16_nasa.entity.Photos;
-import ua.khshanovskyi.ot_16_nasa.exception.NoSoleException;
 import ua.khshanovskyi.ot_16_nasa.exception.NoUriException;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @NoArgsConstructor
 public class PictureService {
 
     @Cacheable("maxImageUrl")
-    public URI getUrlWithMaxPictureSize(String host, String path, int sol, String key) throws NoSoleException, NoUriException {
-        return getPhotos(generateUri(host, path, sol, key)).parallelStream()
+    public URI getUriWithMaxPictureSize(URI uri) throws NoUriException {
+        return getPhotos(uri).parallelStream()
                 .map(Photo::getUrl)
                 .map(PictureService::getUriToSize)
                 .max(Comparator.comparing(Pair::getRight))
                 .filter(pair -> pair.getRight() != -1)
                 .map(Pair::getLeft)
                 .orElseThrow(NoUriException::new);
-    }
-
-    private URI generateUri(String host, String path, int sol, String key) throws NoSoleException {
-        if (sol == 0) throw new NoSoleException("The sol is " + sol);
-        return Objects.nonNull(key) && StringUtils.isNotEmpty(key) ?
-                URI.create(host + path + "?sol=" + sol + "&api_key=" + key) :
-                URI.create(host + path + "?sol=" + sol + "&api_key=DEMO_KEY");
     }
 
     private List<Photo> getPhotos(URI uri) {
