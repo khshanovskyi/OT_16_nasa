@@ -37,7 +37,7 @@ public class PictureController {
             log.error(exception);
             return ResponseEntity
                     .status(HttpStatus.PERMANENT_REDIRECT)
-                    .location(URI.create(HOST))
+                    .location(uriConfigurationService.generateUri(HOST))
                     .build();
         }
 

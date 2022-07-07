@@ -12,13 +12,20 @@ import java.util.Objects;
 @Log4j2
 public class UriConfigurationService {
 
-    public URI generateUri(String host, String path, Map<String, ?> parameters) {
-        Objects.requireNonNull(host);
+    public URI generateUri(String url){
+        Objects.requireNonNull(url);
+        return UriComponentsBuilder.fromUriString(url).build().toUri();
+    }
 
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance().uri(URI.create(host)).path(path);
+    public URI generateUri(String url, String path, Map<String, ?> parameters) {
+        Objects.requireNonNull(url);
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(url).path(path);
         parameters.forEach(uriBuilder::queryParam);
 
         return uriBuilder.build().toUri();
     }
+
+
 
 }
